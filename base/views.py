@@ -18,7 +18,6 @@ def get_products(request):
 
 
 @api_view(['GET'])
-def get_products_details(request, pid):
+def get_product_details(request, pid):
     product = list(filter((lambda a: a['_id'] == pid), products))[0]
-    print(product)
     return Response(product)
