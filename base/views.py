@@ -3,9 +3,10 @@ from django.http import JsonResponse
 # Create your views here.
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from base.models import Product
-from base.serializers import ProductSerializer
+from base.serializers import ProductSerializer, MyTokenObtainPairSerializer
 
 
 @api_view(['GET'])
@@ -25,3 +26,7 @@ def get_product_details(request, pid):
     product = Product.objects.get(pk=pid)
     serializer = ProductSerializer(product)
     return Response(serializer.data)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
