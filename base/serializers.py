@@ -17,13 +17,18 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+    # @classmethod
+    # def get_token(cls, user):
+    #     token = super().get_token(user)
+    #
+    #     # Add custom claims
+    #     token['name'] = user.username
+    #     token['message'] = "Hello there!!!"
+    #     # ...
 
-        # Add custom claims
-        token['name'] = user.username
-        token['message'] = "Hello there!!!"
-        # ...
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data["username"] = self.user.username
+        data["email"] = self.user.email
 
-        return token
+        return data
