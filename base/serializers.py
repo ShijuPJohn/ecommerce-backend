@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -32,3 +33,25 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data["email"] = self.user.email
 
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+    _id = serializers.SerializerMethodField(read_only=True)
+    isAdmin = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["email", "username", "name", "_id", "isAdmin"]
+
+    def get_name(self, obj):
+        name = obj.first_name
+        if name == '':
+            name = obj.email
+        return name
+
+    def get__id(self, obj):
+        return obj.id
+
+    def get_isAdmin(self, obj):
+        return obj.is_staff
