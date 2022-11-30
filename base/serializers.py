@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from base.models import Product
 
@@ -15,24 +16,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         pass
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    # @classmethod
-    # def get_token(cls, user):
-    #     token = super().get_token(user)
-    #
-    #     # Add custom claims
-    #     token['name'] = user.username
-    #     token['message'] = "Hello there!!!"
-    #     # ...
-
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        data["username"] = self.user.username
-        data["email"] = self.user.email
-
-        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -55,3 +38,26 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_isAdmin(self, obj):
         return obj.is_staff
+
+
+class UserSerializerWithToken(UserSerializer):
+    token = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["email", "username", "name", "_id", "isAdmin", 'token']
+
+    def get_token(self, obj):
+        token = RefreshToken.for_user(obj)
+        return str(token.access_token)
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        serializer = UserSerializerWithToken(self.user).data
+        print(serializer)
+        for k, v in serializer.items():
+            data[k] = v
+        return data
