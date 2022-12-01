@@ -11,5 +11,4 @@ urlpatterns = [
     path('users/user', get_user_profile, name='user profile'),
     path('users', get_users, name="users"),
     path('users/register', register_user, name="register user")
-
 ]
